@@ -73,7 +73,7 @@ func init() {
 }
 
 func main() {
-	slog.Default().Info("Hello World")
+	slog.Default().Info("starting")
 	backend, ok := os.LookupEnv("API_PRIORITY_BACKEND")
 	if !ok {
 		panic("API_PRIORITY_BACKEND env var is not set")
