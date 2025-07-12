@@ -1,0 +1,8 @@
+### New payment
+POST http://172.21.21.150:9999/payments
+
+{
+    "correlationId": "{{$uuid}}",
+    "amount": 19.99
+}
+###

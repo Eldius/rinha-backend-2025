@@ -1,10 +1,56 @@
 ---
 services:
-  api1:
+  api1: &api
     build:
       context: .
     container_name: api1
-    mem_limit: 16m
-    cpus: 0.75
+    hostname: api1
+    environment:
+      - API_PRIORITY_BACKEND=http://payment-processor-default:8080
+      - API_PRIORITY_FALLBACK=http://payment-processor-fallback:8080
+    deploy:
+      resources:
+        limits:
+          cpus: "0.55"
+          memory: "16MB"
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 192.168.0.166:6543
+        tag: api
+        mode: "non-blocking"
     networks:
       payment-processor:
+      backend:
+  api2:
+    <<: *api
+    container_name: api2
+    hostname: api2
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 192.168.0.166:6543
+        tag: api
+        mode: "non-blocking"
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: rinha-nginx
+    volumes:
+      - ./resources/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api1
+      - api2
+    ports:
+      - "9999:9999"
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: "15MB"
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
