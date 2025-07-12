@@ -4,17 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/eldius/rinha-backend-2025/internal/client"
+	"github.com/eldius/rinha-backend-2025/internal/persistence"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"time"
 )
 
 func Start(priority, fallback string) error {
-	h := handler{
-		p: client.New(priority, 1*time.Millisecond),
-		f: client.New(fallback, 1*time.Second),
-	}
 	mux := http.NewServeMux()
 
+	db, err := sqlx.Connect("postgres", "postgres://app:MyStrongP%40ss@db:5432/rinha?sslmode=disable")
+	if err != nil {
+		return err
+	}
+	h := newHandler(db, priority, fallback)
+	defer func() {
+		_ = db.Close()
+	}()
 	mux.HandleFunc("GET /", h.index)
 	mux.HandleFunc("POST /payments", h.payments)
 
@@ -25,6 +31,15 @@ func Start(priority, fallback string) error {
 type handler struct {
 	p *client.Client
 	f *client.Client
+	r *persistence.PaymentRepository
+}
+
+func newHandler(db *sqlx.DB, primary, fallback string) *handler {
+	return &handler{
+		r: persistence.New(db),
+		p: client.New(primary, 1*time.Millisecond),
+		f: client.New(fallback, 1*time.Second),
+	}
 }
 
 func (h *handler) index(w http.ResponseWriter, r *http.Request) {
@@ -62,5 +77,9 @@ func (h *handler) payments(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	go func() {
+		_ = h.r.Save(r.Context(), *resp)
+	}()
 	_ = json.NewEncoder(w).Encode(resp)
 }

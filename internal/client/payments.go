@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/eldius/rinha-backend-2025/internal/model"
 	"net/http"
 	"time"
 )
@@ -18,11 +19,6 @@ type ProviderPaymentRequest struct {
 	Amount        float64   `json:"amount"`
 	RequestedAt   time.Time `json:"requestedAt"`
 }
-type ProviderPaymentResponse struct {
-	ProviderPaymentRequest
-	Message  string `json:"message"`
-	Provider string `json:"provider"`
-}
 
 func New(backend string, timeout time.Duration) *Client {
 	return &Client{
@@ -33,7 +29,7 @@ func New(backend string, timeout time.Duration) *Client {
 	}
 }
 
-func (c *Client) Pay(p ProviderPaymentRequest) (*ProviderPaymentResponse, error) {
+func (c *Client) Pay(p ProviderPaymentRequest) (*model.PaymentInfo, error) {
 	var buff bytes.Buffer
 	if err := json.NewEncoder(&buff).Encode(p); err != nil {
 		return nil, fmt.Errorf("encoding payment: %v", err)
@@ -51,13 +47,15 @@ func (c *Client) Pay(p ProviderPaymentRequest) (*ProviderPaymentResponse, error)
 		_ = resp.Body.Close()
 	}()
 
-	var pRes ProviderPaymentResponse
+	var pRes model.PaymentInfo
 	if err := json.NewDecoder(resp.Body).Decode(&resp); err != nil {
 		return nil, fmt.Errorf("decoding response: %v", err)
 	}
 
 	pRes.Provider = c.backend
-	pRes.ProviderPaymentRequest = p
+	pRes.Amount = p.Amount
+	pRes.CorrelationId = p.CorrelationId
+	pRes.RequestedAt = p.RequestedAt
 
 	return &pRes, nil
 }
