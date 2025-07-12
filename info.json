@@ -1,9 +1,9 @@
 {
   "name": "Eldio Santos",
-  "social": ["https://x.com/eldius", "https://bsky.app/profile/eldius.tech"],
+  "social": ["https://x.com/eldius", "https://bsky.app/profile/eldius.tech", "https://github.com/eldius"],
   "source-code-repo": "https://github.com/eldius/rinha-backend-2025",
   "langs": ["go"],
-  "storages": ["postgresql"],
+  "storages": ["postgresql*"],
   "messaging": [],
   "load-balancers": ["nginx"],
   "other-technologies": []
