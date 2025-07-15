@@ -11,3 +11,12 @@ type PaymentInfo struct {
 	Status        string    `json:"status" db:"status"`
 	CreatedAt     time.Time `json:"createdAt" db:"created_at"`
 }
+
+type ProviderSummary struct {
+	TotalRequests int     `json:"totalRequests"`
+	TotalAmount   float64 `json:"totalAmount"`
+}
+type PaymentsSummary struct {
+	Default  ProviderSummary `json:"default"`
+	Fallback ProviderSummary `json:"fallback"`
+}

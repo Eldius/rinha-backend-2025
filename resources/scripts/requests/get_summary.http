@@ -1,0 +1,4 @@
+### GET request to example server
+GET http://localhost:9999/payments-summary?from=2000-01-01T00:00:00&to=2900-01-01T00:00:00 HTTP/1.1
+
+###

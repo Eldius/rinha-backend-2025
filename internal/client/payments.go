@@ -12,6 +12,7 @@ import (
 type Client struct {
 	c       *http.Client
 	backend string
+	name    string
 }
 
 type ProviderPaymentRequest struct {
@@ -20,12 +21,13 @@ type ProviderPaymentRequest struct {
 	RequestedAt   time.Time `json:"requestedAt"`
 }
 
-func New(backend string, timeout time.Duration) *Client {
+func New(name, backend string, timeout time.Duration) *Client {
 	return &Client{
 		c: &http.Client{
 			Timeout: timeout,
 		},
 		backend: backend,
+		name:    name,
 	}
 }
 
@@ -52,7 +54,7 @@ func (c *Client) Pay(p ProviderPaymentRequest) (*model.PaymentInfo, error) {
 		return nil, fmt.Errorf("decoding response: %v", err)
 	}
 
-	pRes.Provider = c.backend
+	pRes.Provider = c.name
 	pRes.Amount = p.Amount
 	pRes.CorrelationId = p.CorrelationId
 	pRes.RequestedAt = p.RequestedAt

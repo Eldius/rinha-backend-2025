@@ -1,0 +1,6 @@
+### New payment
+POST localhost:8001/admin/purge-payments
+Content-Type: application/json
+X-Rinha-Token: 123
+
+###

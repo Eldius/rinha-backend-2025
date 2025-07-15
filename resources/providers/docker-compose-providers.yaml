@@ -1,7 +1,7 @@
 ---
 x-service-templates:
   payment-processor: &payment-processor
-    image: zanfranceschi/payment-processor:amd64-20250707101540
+    image: zanfranceschi/payment-processor:latest
     networks:
       - payment-processor
     deploy:
@@ -15,7 +15,7 @@ x-service-templates:
     networks:
       - payment-processor
     volumes:
-      - ./resources/providers/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
